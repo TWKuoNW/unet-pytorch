@@ -60,7 +60,7 @@ if __name__ == "__main__":
     #   统计输出，各个像素点的值得个数
     #-------------------------------------#
     print("正在统计输出的图片每个像素点的数量。")
-    classes_nums        = np.zeros([256], np.int)
+    classes_nums        = np.zeros([256], np.int32)
     for png_name in tqdm(png_names):
         png_file_name   = os.path.join(Out_SegmentationClass_path, png_name)
         if not os.path.exists(png_file_name):
