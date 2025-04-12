@@ -12,8 +12,8 @@ from tqdm import tqdm
 #   Out_SegmentationClass_path      输出标签所在的路径
 #                                   处理后的标签为灰度图，如果设置的值太小会看不见具体情况。
 #-----------------------------------------------------------------------------------#
-Origin_SegmentationClass_path   = "SegmentationClass_Origin"
-Out_SegmentationClass_path      = "SegmentationClass"
+Origin_SegmentationClass_path   = "VOCdevkit\VOC2007\SegmentationClass_Origin"
+Out_SegmentationClass_path      = "VOCdevkit\VOC2007\SegmentationClass"
 
 #-----------------------------------------------------------------------------------#
 #   Origin_Point_Value  原始标签对应的像素点值
