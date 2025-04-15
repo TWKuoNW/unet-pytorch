@@ -77,7 +77,9 @@ def show_config(**kwargs):
 def download_weights(backbone, model_dir="./model_data"):
     import os
     from torch.hub import load_state_dict_from_url
-    
+    import ssl, certifi
+    ssl._create_default_https_context = ssl.create_default_context(cafile=certifi.where())
+
     download_urls = {
         'vgg'       : 'https://download.pytorch.org/models/vgg16-397923af.pth',
         'resnet50'  : 'https://s3.amazonaws.com/pytorch/models/resnet50-19c8e357.pth'

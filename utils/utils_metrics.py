@@ -1,4 +1,5 @@
 import csv
+import datetime
 import os
 from os.path import join
 
@@ -120,6 +121,44 @@ def compute_mIoU(gt_dir, pred_dir, png_name_list, num_classes, name_classes=None
     #-----------------------------------------------------------------#
     #   在所有验证集图像上求所有类别平均的mIoU值，计算时忽略NaN值
     #-----------------------------------------------------------------#
+    
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # 先計算 per-class TN
+    TP = np.diag(hist)
+    FP = hist.sum(0) - TP
+    FN = hist.sum(1) - TP
+    TN = hist.sum() - (TP + FP + FN)
+    
+    # 計算 fall-out（虛警率）：FP / (FP + TN)，只對非背景類別有意義
+    fall_out = FP / np.maximum(FP + TN, 1)
+    mFallOut = np.nanmean(fall_out)
+    
+    # 記錄 log 資訊
+    log_performance = (
+        f"[{timestamp}] "
+        f"===> mIoU: {round(np.nanmean(IoUs)*100, 2)}%; "
+        f"mPA: {round(np.nanmean(PA_Recall)*100, 2)}%; "
+        f"mPrecision: {round(np.nanmean(Precision)*100, 2)}%; "
+        f"mFallOut: {round(mFallOut*100, 2)}%; "
+        f"Accuracy: {round(per_Accuracy(hist)*100, 2)}%"
+    )
+    log_metrics = (
+        f"[{timestamp}] ===> \n"
+        f"TP:{TP}\n"
+        f"FP:{FP}\n"
+        f"FN:{FN}\n"
+        f"TN:{TN}\n"
+    )
+
+    # 寫入 log.txt（每次 append）
+    os.makedirs('logs', exist_ok=True)
+    with open('logs/performance_log.txt', 'a') as f:
+        f.write(log_performance + '\n')
+    with open('logs/metrics_log.txt', 'a') as f:
+        f.write(log_metrics + '\n')
+
+
+
     print('===> mIoU: ' + str(round(np.nanmean(IoUs) * 100, 2)) + '; mPA: ' + str(round(np.nanmean(PA_Recall) * 100, 2)) + '; Accuracy: ' + str(round(per_Accuracy(hist) * 100, 2)))  
     return np.array(hist, np.int32), IoUs, PA_Recall, Precision
 
@@ -179,4 +218,3 @@ def show_results(miou_out_path, hist, IoUs, PA_Recall, Precision, name_classes, 
             writer_list.append([name_classes[i]] + [str(x) for x in hist[i]])
         writer.writerows(writer_list)
     print("Save confusion_matrix out to " + os.path.join(miou_out_path, "confusion_matrix.csv"))
-            
