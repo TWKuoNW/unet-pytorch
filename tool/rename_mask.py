@@ -1,7 +1,7 @@
 import os
 
 # 設定資料夾路徑
-folder_path = 'VOCdevkit/VOC2007/SegmentationClass_Origin'
+folder_path = 'VOCdevkit/VOC2007/SegmentationClass'
 
 # 取得資料夾內所有以 pm_ 開頭的檔案
 for filename in os.listdir(folder_path):

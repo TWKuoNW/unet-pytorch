@@ -154,7 +154,7 @@ if __name__ == "__main__":
     #                       (当Freeze_Train=False时失效)
     #------------------------------------------------------------------#
     Init_Epoch          = 0
-    Freeze_Epoch        = 10
+    Freeze_Epoch        = 2
     Freeze_batch_size   = 2
     #------------------------------------------------------------------#
     #   解冻阶段训练参数
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     #   UnFreeze_Epoch          模型总共训练的epoch
     #   Unfreeze_batch_size     模型在解冻后的batch_size
     #------------------------------------------------------------------#
-    UnFreeze_Epoch      = 20
+    UnFreeze_Epoch      = 4
     Unfreeze_batch_size = 2
     #------------------------------------------------------------------#
     #   Freeze_Train    是否进行冻结训练
