@@ -141,6 +141,7 @@ dmypy.json
 
 # 忽略所有 JPG 圖片（不區分大小寫）
 *.jpg
+*.jpeg
 *.JPG
 
 # 忽略所有 PNG 圖片（不區分大小寫）
