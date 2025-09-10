@@ -1,20 +1,22 @@
 import cv2
 import numpy as np
-import os 
+import os
+from tqdm import tqdm 
 
-input_folder = r"datasets\data\VOCdevkit\VOC2012\SegmentationClassOrigin"
-output_folder = r"datasets\data\VOCdevkit\VOC2012\SegmentationClass"
+input_folder = r"mask_origin"
+output_folder = r"mask"
 
-os.makedirs(output_folder, exist_ok=True) # 如果資料夾不存在就建立
+os.makedirs(output_folder, exist_ok=True) 
 
-for filename in os.listdir(input_folder): # 讀取資料夾內所有檔案
-    if filename.lower().endswith(('.png')):
-        image_path = os.path.join(input_folder, filename)
-        image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+files = [f for f in os.listdir(input_folder) if f.lower().endswith('.png')]
 
-        binary = np.where(image==0, 0, 1).astype(np.uint8)  
+for filename in tqdm(files, desc="Processing images"):
+    image_path = os.path.join(input_folder, filename)
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 
-        output_path = os.path.join(output_folder, filename)
-        cv2.imwrite(output_path, binary)
+    binary = np.where(image == 0, 0, 1).astype(np.uint8)
+
+    output_path = os.path.join(output_folder, filename)
+    cv2.imwrite(output_path, binary)
 
 print("處理完成~~")

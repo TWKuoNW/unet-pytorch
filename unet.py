@@ -16,9 +16,9 @@ from utils.utils import cvtColor, preprocess_input, resize_image, show_config
 
 #--------------------------------------------#
 #   使用自己训练好的模型预测需要修改2个参数
-#   model_path和num_classes都需要修改！
+#   model_path和num_classes都需要修改！ 
 #   如果出现shape不匹配
-#   一定要注意训练时的model_path和num_classes数的修改
+#   一定要注意训练时的model_path和num_classes数的修改       
 #--------------------------------------------#
 class Unet(object):
     _defaults = {

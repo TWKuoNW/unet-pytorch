@@ -7,6 +7,7 @@ Medical_Datasets/
 lfw/
 logs/
 model_data/
+pth_folder/
 .temp_miou_out/
 
 # Byte-compiled / optimized / DLL files
@@ -151,3 +152,5 @@ dmypy.json
 # 忽略所有 MP4 影片
 *.mp4
 *.MP4
+
+*.pth
