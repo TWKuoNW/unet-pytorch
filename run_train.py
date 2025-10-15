@@ -10,6 +10,7 @@ import os
 import random
 import datetime
 
+
 from PIL import Image
 from functools import partial
 from torch.utils.data import DataLoader
@@ -30,22 +31,27 @@ class U_Net_pro():
         self.SegmentationClass_path = self.dataset_root/"SegmentationClass"
         self.SegmentationClassOrigin_path = self.dataset_root/"SegmentationClassOrigin"
     
-    def train(self, train_imgs_path, train_mask_path, epochs, batch_size, lr, cuda):
+    def train(self, train_imgs_path, train_mask_path, epochs, batch_size, lr, cuda, model_path, backbone, new_data):
         self.train_imgs_path = train_imgs_path
         self.train_mask_path = train_mask_path
         self.epoch = epochs
         self.batch_size = batch_size
         self.lr = lr
         self.cuda = cuda
+        self.model_path = model_path
+        self.backbone = backbone
+        self.new_data = new_data
 
-        self.clean_old_train_data()
-        print("開始複製資料集...")
-        self.copy_data(self.train_imgs_path, self.JPEGImages_path)
-        self.copy_data(self.train_mask_path, self.SegmentationClassOrigin_path)
-        print("完成複製資料集...")    
-        self.convert_rgb2bin()
-        self.to_jpg()
-        self.annotation()
+        if self.new_data:
+            self.clean_old_train_data()
+            print("開始複製資料集...")
+            self.copy_data(self.train_imgs_path, self.JPEGImages_path)
+            self.copy_data(self.train_mask_path, self.SegmentationClassOrigin_path)
+            print("完成複製資料集...")    
+            self.convert_rgb2bin()
+            self.to_jpg()
+            self.annotation()
+        
         self.train_script()
     
     # clean
@@ -199,9 +205,9 @@ class U_Net_pro():
         sync_bn         = False 
         fp16            = False
         num_classes = 2
-        backbone    = "vgg"
+        backbone    = self.backbone
         pretrained  = False
-        model_path  = "pth_folder/unet_vgg_voc.pth"
+        model_path  = self.model_path
         input_shape = [512, 512]
         Init_Epoch          = 0
         Freeze_Epoch        = int(self.epoch*0.2)
@@ -230,8 +236,6 @@ class U_Net_pro():
         device          = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         local_rank      = 0
         rank            = 0
-
-        download_weights(backbone)
 
         model = Unet(num_classes=num_classes, pretrained=pretrained, backbone=backbone).train() # 執行訓練任務
         if not pretrained:
@@ -400,14 +404,17 @@ class U_Net_pro():
             if local_rank == 0:
                 loss_history.writer.close()  
         
-
 if __name__ == "__main__":
     r = U_Net_pro()
     r.train(
-        train_imgs_path = r"/Users/kuonw/Documents/dataset/test_img", 
-        train_mask_path = r"/Users/kuonw/Documents/dataset/test_mask", 
+        train_imgs_path = r"E:\naiwen_folder\訓練資料\測試_文獻_東沙_420\test_420", 
+        train_mask_path = r"E:\naiwen_folder\訓練資料\測試_文獻_東沙_420\test_420_mask", 
         epochs = 100, 
         batch_size = 32, 
         lr = 0.01,
-        cuda = False
+        cuda = True,
+        model_path = r"model_folder\unet_resnet_voc.pth",
+        backbone = "resnet50", # resnet50
+        new_data = False, # False
     )
+
