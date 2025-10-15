@@ -211,12 +211,11 @@ def run_training(progress ,log , cuda = False, epoch = 100, save = 5):
         else:
             eval_callback   = None
         
-        log.insert(tk.END, f"Start training for {UnFreeze_Epoch} epochs...\n")
+        safe_log(log, f"Start training for {UnFreeze_Epoch} epochs...")
+
         for epoch in range(Init_Epoch, UnFreeze_Epoch):
             pct = int(epoch / UnFreeze_Epoch * 100)
             progress["value"] = pct
-            log.insert(tk.END, f"Epoch {epoch+1}/{UnFreeze_Epoch} done.\n")
-            log.see(tk.END)
             
             if epoch >= Freeze_Epoch and not UnFreeze_flag and Freeze_Train:
                 batch_size = Unfreeze_batch_size
@@ -260,10 +259,14 @@ def run_training(progress ,log , cuda = False, epoch = 100, save = 5):
             if distributed:
                 dist.barrier()
 
+            safe_progress(progress, int((epoch) / UnFreeze_Epoch * 100))
+            safe_log(log, f"Epoch {epoch+1}/{UnFreeze_Epoch} done.")
+
+
         if local_rank == 0:
             loss_history.writer.close()  
     
-    log.insert(tk.END, "Training finished.\n")   
+    safe_log(log, "Training finished.")
 
 # ---------------- GUI ----------------
 root = tk.Tk()
@@ -379,13 +382,11 @@ def clean_old_train_data(log):
         if not d.exists():
             print(f"[skip] {d} 不存在")
             continue
-        # 刪除底下所有檔案與子資料夾，但保留 d 本身
         for p in d.iterdir():
             if p.is_file() or p.is_symlink():
                 p.unlink()
             else:
                 shutil.rmtree(p)
-        # print(f"[ok] 已清空：{d}")
         log.insert(tk.END, f"已清空：{d}\n")
 
 def copy_data(src_dir, dst_dir):
@@ -500,42 +501,102 @@ def annotation():
     print("如果格式有误，参考:")
     print("https://github.com/bubbliiiing/segmentation-format-fix")
 
+def to_jpg():
+    folder = Path("VOCdevkit/VOC2007/JPEGImages") 
+    paths = list(folder.glob("*.jpeg")) + list(folder.glob("*.JPEG"))
+
+    def unique_jpg_path(p: Path) -> Path:
+        out = p.with_suffix(".jpg")
+        i = 1
+        while out.exists():
+            out = out.with_name(f"{out.stem}_{i}.jpg")
+            i += 1
+        return out
+
+    for src in tqdm(paths, desc="Renaming", unit="file"):
+        dst = unique_jpg_path(src)
+        src.rename(dst)  # 直接改名（同資料夾最省事）
+
+def safe_log(widget: tk.Text, msg: str):
+    # 在主執行緒安全寫入 Text
+    if widget and widget.winfo_exists():
+        widget.after(0, lambda m=msg: (widget.insert(tk.END, m + "\n"),
+                                       widget.see(tk.END)))
+
+def safe_progress(pbar: ttk.Progressbar, value: int):
+    # 在主執行緒安全更新進度條
+    value = max(0, min(100, int(value)))
+    if pbar and pbar.winfo_exists():
+        pbar.after(0, lambda v=value: pbar.config(value=v))
+
 def start_train_thread():
-    new_data = chk_new_data.instate(['selected'])
-    print(le_images.get() == "")
-    if(new_data):
+    new_data = chk_new_data.instate(['selected']) # 確認是否是新資料
+    if(new_data): # 是的話執行以下
         ui_log("正在初始化資料夾...")
         clean_old_train_data(te_train_log)
+        try:
+            ui_log("正在複製資料集...")
+            if(le_images.get() == ""):
+                ui_log("資料夾路徑空～")
+            else:
+                img_path = le_images.get()
+                mask_path = le_masks.get()
+                copy_data(img_path, "VOCdevkit/VOC2007/JPEGImages")
+                copy_data(mask_path, "VOCdevkit/VOC2007/SegmentationClassOrigin")
+                ui_log("複製完成～")
+        except:
+            print("複製資料集時出問題...")
 
-        ui_log("正在複製資料集...")
-        if(le_images.get() == ""):
-            ui_log("資料夾路徑空～")
-        else:
-            img_path = le_images.get()
-            mask_path = le_masks.get()
-            copy_data(img_path, "VOCdevkit/VOC2007/JPEGImages")
-            copy_data(mask_path, "VOCdevkit/VOC2007/SegmentationClassOrigin")
-            ui_log("複製完成～")
+        try:
+            ui_log("正在統一副檔名...")
+            t = threading.Thread(
+                target=convert_rgb2bin, 
+                args=("VOCdevkit/VOC2007/SegmentationClassOrigin",
+                      "VOCdevkit/VOC2007/SegmentationClass"),
+                daemon=True
+            )
+            t.start()
+            t.join()
+            ui_log("統一副檔名完成～")
+        except:
+            print("統一副檔名時出問題...")
 
-        ui_log("正在轉換為binary...")
-        convert_rgb2bin("VOCdevkit/VOC2007/SegmentationClassOrigin", "VOCdevkit/VOC2007/SegmentationClass")
-        ui_log("轉換完成～")
+        try:
+            ui_log("正在轉換為binary...")
+            t = threading.Thread(
+                target=to_jpg, 
+                daemon=True
+            )
+            t.start()
+            t.join()
+            ui_log("轉換完成～")
+        except:
+            print("轉換binary時出問題...")
 
-        ui_log("正在建立註解...")
-        annotation()
-        ui_log("建立完成～")
-
-    ui_log("正在開始訓練...")
-    cuda = chk_cuda.instate(['selected'])
-    threading.Thread(target=run_training, args=(pb_train, te_train_log, cuda, 100,  5), daemon=True).start()
+        try:
+            ui_log("正在建立註解...")
+            t = threading.Thread(target=annotation, daemon=True)
+            t.start()
+            t.join()
+            ui_log("建立完成～")
+        except:
+            print("建立註解時出問題...")
+    try:
+        ui_log("正在開始訓練...")
+        cuda = chk_cuda.instate(['selected'])
+        threading.Thread(
+            target=run_training, 
+            args=(pb_train, te_train_log, cuda, 100,  5), 
+            daemon=True
+        ).start()
+    except:
+        print("訓練時出錯...")
 
 def start_pred_thread():
     threading.Thread(target=run_prediction, args=(pb_pred, te_pred_log), daemon=True).start()
 
-
 btn_start_train.config(command=start_train_thread)
 btn_run_pred.config(command=start_pred_thread)
-
 
 # Stop 按鈕示範（實際要加 flag）
 btn_stop_train.config(command=lambda: messagebox.showinfo("Stop", "Stop pressed (implement stop logic)"))

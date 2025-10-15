@@ -1,0 +1,5 @@
+在電腦用這個檔案建立環境：
+conda env create -f environment.yml
+
+預設會用 YAML 裡的名字建環境，你也可以改名：
+conda env create -n new_env -f environment.yml§
