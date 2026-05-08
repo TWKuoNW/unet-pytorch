@@ -7,7 +7,6 @@ Medical_Datasets/
 lfw/
 logs/
 model_data/
-pth_folder/
 .temp_miou_out/
 
 # Byte-compiled / optimized / DLL files

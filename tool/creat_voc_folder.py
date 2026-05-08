@@ -1,20 +1,17 @@
 import os
 
-def create_voc_structure(root_dir="VOCdevkit", year="VOC2007"):
-    voc_path = os.path.join(root_dir, year)
-    sub_dirs = [
-        "JPEGImages",
-        "SegmentationClass",
-        "SegmentationClassOrigin",
-        os.path.join("ImageSets", "Segmentation"),
-    ]
-    
-    for sub in sub_dirs:
-        path = os.path.join(voc_path, sub)
-        os.makedirs(path, exist_ok=True)
-        print(f"Created: {path}")
-    
-    print("\nVOC folder structure created successfully!")
+VOCdevkit_path = 'VOCdevkit'
 
-if __name__ == "__main__":
-    create_voc_structure(root_dir="VOCdevkit", year="VOC2007")
+folders = [
+    'VOC2007/JPEGImages',
+    'VOC2007/SegmentationClass',
+    'VOC2007/SegmentationClass_Origin',
+    'VOC2007/ImageSets/Segmentation',
+]
+
+for folder in folders:
+    path = os.path.join(VOCdevkit_path, folder)
+    os.makedirs(path, exist_ok=True)
+    print(f"已建立: {path}")
+
+print("VOC 資料夾結構建立完成")
