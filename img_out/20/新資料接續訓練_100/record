@@ -1,0 +1,22 @@
+(base) kuonw@kdd5080-System-Product-Name:~/Documents/coast/unet-pytorch$ /home/kuonw/anaconda3/envs/unet_env/bin/python /home/kuonw/Documents/coast/unet-pytorch/predict_performance.py
+model_folder/新資料接續訓練_100.pth model, and classes loaded.
+Configurations:
+----------------------------------------------------------------------
+|                     keys |                                   values|
+----------------------------------------------------------------------
+|               model_path |             model_folder/新資料接續訓練_100.pth|
+|              num_classes |                                        2|
+|                 backbone |                                 resnet50|
+|              input_shape |                               [512, 512]|
+|                 mix_type |                                        0|
+|                     cuda |                                     True|
+----------------------------------------------------------------------
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 21/21 [00:01<00:00, 16.07it/s]
+Confusion Matrix:
+ [[10565422  3562317]
+ [ 1723953 15252308]]
+mRecall: 0.8231
+mPrecision: 0.8352
+mAcc: 0.8300
+mFallout: 0.1769
+mIoU: 0.7046

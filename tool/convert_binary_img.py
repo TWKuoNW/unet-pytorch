@@ -3,8 +3,8 @@ import cv2
 import numpy as np
 import os
 
-input_folder = "VOCdevkit/VOC2007/SegmentationClass_Origin"   # 這裡請放輸入資料夾
-output_folder = "VOCdevkit/VOC2007/SegmentationClass"  # 這裡請放輸出資料夾
+input_folder = "mask_origin"   # 這裡請放輸入資料夾
+output_folder = "mask"  # 這裡請放輸出資料夾
 count = 0
 
 for filename in os.listdir(input_folder): # 讀取資料夾內所有檔案

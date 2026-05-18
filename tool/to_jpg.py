@@ -2,7 +2,7 @@
 from pathlib import Path
 from tqdm import tqdm
 
-folder = Path("VOCdevkit/VOC2007/JPEGImages")  # 換成你的資料夾
+folder = Path("img")  # 換成你的資料夾
 paths = list(folder.glob("*.jpeg")) + list(folder.glob("*.JPEG"))
 
 def unique_jpg_path(p: Path) -> Path:

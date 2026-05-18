@@ -27,7 +27,7 @@ class Unet(object):
         #   训练好后logs文件夹下存在多个权值文件，选择验证集损失较低的即可。
         #   验证集损失较低不代表miou较高，仅代表该权值在验证集上泛化性能较好。
         #-------------------------------------------------------------------#
-        "model_path"    : r'logs\Newdata_before_3000\best_epoch_weights.pth',
+        "model_path"    : r'model_folder/新資料接續訓練_100.pth',
         #--------------------------------#
         #   所需要区分的类的个数+1
         #--------------------------------#
@@ -35,7 +35,7 @@ class Unet(object):
         #--------------------------------#
         #   所使用的的主干网络：vgg、resnet50   
         #--------------------------------#
-        "backbone"      : "vgg",
+        "backbone"      : "resnet50",
         #--------------------------------#
         #   输入图片的大小
         #--------------------------------#
@@ -52,7 +52,7 @@ class Unet(object):
         #   是否使用Cuda
         #   没有GPU可以设置成False
         #--------------------------------#
-        "cuda"          : False,
+        "cuda"          : True,
     }
 
     #---------------------------------------------------#
@@ -68,7 +68,7 @@ class Unet(object):
         if self.num_classes <= 21:
             # 顏色對調，海草背景顏色交換
             # self.colors = [ (0, 0, 0), (128, 0, 0), (0, 128, 0)]
-            self.colors = [(128, 0, 0), (0, 0, 0)]
+            self.colors = [(0, 0, 0), (128, 0, 0)]
         else:
             hsv_tuples = [(x / self.num_classes, 1., 1.) for x in range(self.num_classes)]
             self.colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
@@ -208,6 +208,7 @@ class Unet(object):
         return tact_time
 
     def convert_to_onnx(self, simplify, model_path):
+        # pyrefly: ignore [missing-import]
         import onnx
         self.generate(onnx=True)
 

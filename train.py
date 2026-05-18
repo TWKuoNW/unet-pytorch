@@ -104,7 +104,7 @@ if __name__ == "__main__":
     #   一般來講，網絡從0開始的訓練效果會很差，因為權值太過隨機，特征提取效果不明顯，因此非常、非常、非常不建議大家從0開始訓練！
     #   如果一定要從0開始，可以了解imagenet數據集，首先訓練分類模型，獲得網絡的主幹部分權值，分類模型的 主幹部分 和該模型通用，基於此進行訓練。
     #----------------------------------------------------------------------------------------------------------------------------#
-    model_path  = "pth_folder/unet_resnet_voc.pth"
+    model_path  = "logs/舊資料訓練/best_epoch_weights.pth"
     #-----------------------------------------------------#
     #   input_shape     輸入圖片的大小，32的倍數
     #-----------------------------------------------------#
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     #   Freeze_Train    是否進行凍結訓練
     #                   默認先凍結主幹訓練後解凍訓練。
     #------------------------------------------------------------------#
-    Freeze_Train        = True
+    Freeze_Train        = False
 
     #------------------------------------------------------------------#
     #   其它訓練參數：學習率、優化器、學習率下降有關
@@ -178,8 +178,9 @@ if __name__ == "__main__":
     #                   當使用Adam優化器時建議設置  Init_lr=1e-4
     #                   當使用SGD優化器時建議設置   Init_lr=1e-2
     #   Min_lr          模型的最小學習率，默認為最大學習率的0.01
+    #   find tune       5e-6
     #------------------------------------------------------------------#
-    Init_lr             = 1e-4
+    Init_lr             = 2e-5
     Min_lr              = Init_lr * 0.01
     #------------------------------------------------------------------#
     #   optimizer_type  使用到的優化器種類，可選的有adam、sgd
@@ -199,7 +200,7 @@ if __name__ == "__main__":
     #------------------------------------------------------------------#
     #   save_period     多少個epoch保存一次權值
     #------------------------------------------------------------------#
-    save_period         = 5
+    save_period         = 25
     #------------------------------------------------------------------#
     #   save_dir        權值與日志文件保存的文件夾
     #------------------------------------------------------------------#
@@ -213,7 +214,7 @@ if __name__ == "__main__":
     #   （二）此處設置評估參數較為保守，目的是加快評估速度。
     #------------------------------------------------------------------#
     eval_flag           = True
-    eval_period         = 1
+    eval_period         = 5
     
     #------------------------------#
     #   數據集路徑
@@ -244,7 +245,7 @@ if __name__ == "__main__":
     #                   keras里開啟多線程有些時候速度反而慢了許多
     #                   在IO為瓶頸的時候再開啟多線程，即GPU運算速度遠大於讀取圖片的速度。
     #------------------------------------------------------------------#
-    num_workers     = 4
+    num_workers     = 8
 
     seed_everything(seed)
     #------------------------------------------------------#
@@ -261,6 +262,7 @@ if __name__ == "__main__":
             print("Gpu Device Count : ", ngpus_per_node)
     else: # <- 通常走這
         device          = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        print("device : ", device)
         local_rank      = 0
         rank            = 0
 
@@ -391,7 +393,7 @@ if __name__ == "__main__":
         #-------------------------------------------------------------------#
         nbs             = 16
         lr_limit_max    = 1e-4 if optimizer_type == 'adam' else 1e-1
-        lr_limit_min    = 1e-4 if optimizer_type == 'adam' else 5e-4
+        lr_limit_min    = 1e-7 if optimizer_type == 'adam' else 5e-4
         Init_lr_fit     = min(max(batch_size / nbs * Init_lr, lr_limit_min), lr_limit_max)
         Min_lr_fit      = min(max(batch_size / nbs * Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
 
@@ -462,7 +464,7 @@ if __name__ == "__main__":
                 #-------------------------------------------------------------------#
                 nbs             = 16
                 lr_limit_max    = 1e-4 if optimizer_type == 'adam' else 1e-1
-                lr_limit_min    = 1e-4 if optimizer_type == 'adam' else 5e-4
+                lr_limit_min    = 1e-7 if optimizer_type == 'adam' else 5e-4
                 Init_lr_fit     = min(max(batch_size / nbs * Init_lr, lr_limit_min), lr_limit_max)
                 Min_lr_fit      = min(max(batch_size / nbs * Min_lr, lr_limit_min * 1e-2), lr_limit_max * 1e-2)
                 #---------------------------------------#
