@@ -105,7 +105,7 @@ if __name__ == "__main__":
     #   dir_origin_path和dir_save_path仅在mode='dir_predict'时有效
     #-------------------------------------------------------------------------#
     dir_origin_path = "img/"
-    dir_save_path   = "img_out/512/新資料接續訓練_100"
+    dir_save_path   = "img_out/250/v3_1"
     #-------------------------------------------------------------------------#
     #   simplify            使用Simplify onnx
     #   onnx_save_path      指定了onnx的保存路径

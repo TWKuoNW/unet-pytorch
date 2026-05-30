@@ -6,6 +6,7 @@ datasets/
 Medical_Datasets/
 lfw/
 logs/
+img_out/
 model_data/
 .temp_miou_out/
 

@@ -1,8 +1,0 @@
-Confusion Matrix:
- [[363896107  60534402]
- [ 49299891 728012960]]
-mRecall: 0.8970
-mPrecision: 0.9020
-mAcc: 0.9086
-mFallout: 0.1030
-mIoU: 0.8185
