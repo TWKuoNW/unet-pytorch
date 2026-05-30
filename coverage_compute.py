@@ -7,14 +7,13 @@ from tqdm import tqdm
 from unet import Unet
 
 # ---- Config ----
-ROOT_DIR = "/home/kuonw/文件/Coast/seagrass"
+ROOT_DIR = "img"
 
 FOLDER_DICT = {
-    "seagrass_000001": "seagrass_000001",
-    "seagrass_000002": "seagrass_000002",
+    "": "",
 }
 
-OUTPUT_CSV = "coverage_results.csv"
+OUTPUT_CSV = "v2_1.csv"
 SEAGRASS_CLASS = 1  # 0=background, 1=seagrass
 # ----------------
 

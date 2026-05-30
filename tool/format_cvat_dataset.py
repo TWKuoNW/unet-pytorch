@@ -100,10 +100,10 @@ if __name__ == "__main__":
     # =========================================================
     # 請在此處設定您的 A 與 B 資料夾路徑
     # =========================================================
-    FOLDER_A = "/home/kuonw/Downloads/202605_PZ_manual-20260530T033656Z-3-001/202605_PZ_manual/cvat"
+    FOLDER_A = "/home/kuonw/Documents/coast/Datasets/v31_only"
     
     # 預設會在下載資料夾建立一個新的空資料夾作為 B
-    FOLDER_B = "output"
+    FOLDER_B = "/home/kuonw/Documents/coast/Datasets/v3_1_only"
     
     print(f"來源資料夾 (A): {FOLDER_A}")
     print(f"目標資料夾 (B): {FOLDER_B}")
