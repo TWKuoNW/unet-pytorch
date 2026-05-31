@@ -1,7 +1,8 @@
 import os
 import csv
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 from tqdm import tqdm
 
 from unet import Unet
@@ -26,34 +27,38 @@ def compute_coverage(pr_mask):
 
 def main():
     unet = Unet()
-    rows = []
-
-    for label, subfolder in FOLDER_DICT.items():
-        folder_path = os.path.join(ROOT_DIR, subfolder)
-        if not os.path.isdir(folder_path):
-            print(f"Warning: {folder_path} not found, skipping.")
-            continue
-
-        img_names = sorted(
-            f for f in os.listdir(folder_path) if f.lower().endswith(IMG_EXTENSIONS)
-        )
-
-        for img_name in tqdm(img_names, desc=label):
-            img_path = os.path.join(folder_path, img_name)
-            image = Image.open(img_path)
-            _, pred_mask = unet.detect_image(image, return_mask=True)
-            coverage = compute_coverage(pred_mask)
-            rows.append({
-                "filename": os.path.join(subfolder, img_name),
-                "coverage": f"{coverage:.6f}",
-            })
+    count = 0
 
     with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["filename", "coverage"])
         writer.writeheader()
-        writer.writerows(rows)
 
-    print(f"Done! Saved {len(rows)} records to {OUTPUT_CSV}")
+        for label, subfolder in FOLDER_DICT.items():
+            folder_path = os.path.join(ROOT_DIR, subfolder)
+            if not os.path.isdir(folder_path):
+                print(f"Warning: {folder_path} not found, skipping.")
+                continue
+
+            img_names = sorted(
+                fn for fn in os.listdir(folder_path) if fn.lower().endswith(IMG_EXTENSIONS)
+            )
+
+            for img_name in tqdm(img_names, desc=label):
+                img_path = os.path.join(folder_path, img_name)
+                try:
+                    image = Image.open(img_path)
+                    _, pred_mask = unet.detect_image(image, return_mask=True)
+                    coverage = compute_coverage(pred_mask)
+                    writer.writerow({
+                        "filename": os.path.join(subfolder, img_name),
+                        "coverage": f"{coverage:.6f}",
+                    })
+                    f.flush()
+                    count += 1
+                except Exception as e:
+                    print(f"\nSkip {img_name}: {e}")
+
+    print(f"Done! Saved {count} records to {OUTPUT_CSV}")
 
 
 if __name__ == "__main__":
